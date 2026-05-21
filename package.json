@@ -7,7 +7,7 @@
     "agentmeter": "./dist/index.js"
   },
   "scripts": {
-    "build": "tsc -p tsconfig.json",
+    "build": "tsc -p tsconfig.json && cp -r src/dashboard/static dist/dashboard/",
     "test": "vitest run",
     "dev": "tsc -p tsconfig.json --watch"
   },
@@ -23,7 +23,7 @@
     "typescript": "^5.7.0",
     "vitest": "^3.1.0"
   },
-  "files": ["dist"],
+  "files": ["dist", "dist/dashboard/static"],
   "repository": {
     "type": "git",
     "url": "https://github.com/ymstar/agentmeter.git"
