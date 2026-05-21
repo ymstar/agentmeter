@@ -1,6 +1,6 @@
 {
   "name": "@ymstar/agentmeter",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Token consumption tracking for AI Agents",
   "type": "module",
   "bin": {
