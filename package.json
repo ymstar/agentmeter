@@ -1,0 +1,31 @@
+{
+  "name": "@ymstar/agentmeter",
+  "version": "0.1.0",
+  "description": "Token consumption tracking for AI Agents",
+  "type": "module",
+  "bin": {
+    "agentmeter": "./dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "vitest run",
+    "dev": "tsc -p tsconfig.json --watch"
+  },
+  "keywords": ["ai", "agent", "token", "metering", "mcp", "claude"],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "better-sqlite3": "^11.0.0"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "^7.6.0",
+    "@types/node": "^22.0.0",
+    "typescript": "^5.7.0",
+    "vitest": "^3.1.0"
+  },
+  "files": ["dist"],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ymstar/agentmeter.git"
+  }
+}
