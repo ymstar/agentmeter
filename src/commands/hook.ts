@@ -16,6 +16,8 @@ interface HookInput {
   agent_type?: string;
   cwd?: string;
   conversation_turn?: number;
+  effort?: string;
+  duration_ms?: number;
 }
 
 export function hookCommand(): void {
@@ -37,6 +39,9 @@ export function hookCommand(): void {
     process.exit(0);
   }
 
+  // Note: Claude Code sends cwd, duration_ms, hook_event_name, permission_mode, effort, transcript_path
+  // but does NOT send model or agent_type - these are detected from env vars, settings, and patterns
+
   const db = new MeterDB(DB_PATH);
 
   try {
@@ -49,6 +54,9 @@ export function hookCommand(): void {
     // Detect agent type (Claude Code, Cursor, etc.)
     const agentType = detectAgentType(input);
 
+    // Detect effort level (high/medium/low - may correspond to different models)
+    const effort = input.effort ?? process.env.CLAUDE_EFFORT ?? undefined;
+
     // Extract project name from cwd
     const project = input.cwd ? basename(input.cwd) : undefined;
 
@@ -58,14 +66,18 @@ export function hookCommand(): void {
     // Estimate input tokens from arguments
     const inputTokens = tokenUsage?.inputTokens ?? estimateFromArguments(input.tool_input ?? {});
 
+    // Extract cache token data
+    const cacheCreationTokens = tokenUsage?.cacheCreationInputTokens ?? 0;
+    const cacheReadTokens = tokenUsage?.cacheReadInputTokens ?? 0;
+
     // Estimate output tokens from response
     let outputTokens = tokenUsage?.outputTokens ?? 0;
     if (outputTokens === 0 && input.tool_response) {
       outputTokens = estimateResponseTokens(input.tool_response);
     }
 
-    // Estimate cost with detected model
-    const cost = estimateCost(inputTokens, outputTokens, model);
+    // Estimate cost with detected model (cache-aware)
+    const cost = estimateCost(inputTokens, outputTokens, model, cacheCreationTokens, cacheReadTokens);
 
     // Create argument summary (truncate sensitive data)
     const argsSummary = createArgsSummary(input.tool_input);
@@ -79,7 +91,11 @@ export function hookCommand(): void {
       project: project,
       input_tokens: inputTokens,
       output_tokens: outputTokens,
+      cache_creation_input_tokens: cacheCreationTokens,
+      cache_read_input_tokens: cacheReadTokens,
       estimated_cost: cost,
+      duration_ms: input.duration_ms,
+      effort: effort,
       is_error: isError(input.tool_response),
       arguments_summary: argsSummary,
     });
@@ -169,21 +185,32 @@ function detectAgentType(input: HookInput): string {
   // Check input field
   if (input.agent_type) return input.agent_type;
 
-  // Detect from environment
-  if (process.env.CLAUDE_CODE) return "claude-code";
+  // Detect from environment (Claude Code sets CLAUDECODE=1, not CLAUDE_CODE)
+  if (process.env.CLAUDECODE || process.env.CLAUDE_CODE) return "claude-code";
   if (process.env.CURSOR) return "cursor";
   if (process.env.GEMINI_CLI) return "gemini-cli";
 
-  // Check for Claude Code specific patterns
+  // Check for Claude Code session ID from env
+  if (process.env.CLAUDE_CODE_SESSION_ID) return "claude-code";
+
+  // Check session_id format (Claude Code uses UUIDs)
   if (input.session_id && typeof input.session_id === "string") {
-    // Claude Code session IDs are UUIDs
     if (/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(input.session_id)) {
+      return "claude-code";
+    }
+    if (/^session_/i.test(input.session_id) || /^[0-9a-f]{16,}$/i.test(input.session_id)) {
       return "claude-code";
     }
   }
 
-  // Check if Claude Code is installed (most common case)
+  // Check if cwd is provided (Claude Code sends this)
+  if (input.cwd) return "claude-code";
+
+  // Check if Claude Code is installed
   if (existsSync(join(homedir(), ".claude"))) return "claude-code";
+
+  // Check model - if it's a Claude model, it's likely Claude Code
+  if (input.model && /claude/i.test(input.model)) return "claude-code";
 
   return "unknown";
 }

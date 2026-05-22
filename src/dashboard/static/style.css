@@ -177,10 +177,27 @@ header {
 .refresh-btn:hover { border-color: var(--accent); color: var(--accent); }
 .refresh-btn.spinning svg { animation: spin 0.8s linear; }
 
+.github-btn {
+  width: 34px;
+  height: 34px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--bg-secondary);
+  color: var(--text-secondary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  text-decoration: none;
+}
+
+.github-btn:hover { border-color: var(--accent); color: var(--text-primary); }
+
 /* Stats Cards */
 .stats-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(5, 1fr);
   gap: 16px;
   margin-bottom: 28px;
 }
@@ -200,6 +217,7 @@ header {
 .stat-card:nth-child(2) { animation-delay: 0.1s; }
 .stat-card:nth-child(3) { animation-delay: 0.15s; }
 .stat-card:nth-child(4) { animation-delay: 0.2s; }
+.stat-card:nth-child(5) { animation-delay: 0.25s; }
 
 .stat-card:hover {
   transform: translateY(-2px);
@@ -220,6 +238,7 @@ header {
 .stat-card.accent-green::before { background: linear-gradient(90deg, var(--accent-green), transparent); }
 .stat-card.accent-yellow::before { background: linear-gradient(90deg, var(--accent-yellow), transparent); }
 .stat-card.accent-purple::before { background: linear-gradient(90deg, var(--accent-purple), transparent); }
+.stat-card.accent-cyan::before { background: linear-gradient(90deg, var(--accent-cyan), transparent); }
 
 .stat-header {
   display: flex;
@@ -289,6 +308,7 @@ header {
 .stat-card.accent-green .stat-value { color: var(--accent-green); }
 .stat-card.accent-yellow .stat-value { color: var(--accent-yellow); }
 .stat-card.accent-purple .stat-value { color: var(--accent-purple); }
+.stat-card.accent-cyan .stat-value { color: var(--accent-cyan); }
 
 /* Charts */
 .charts-grid {
@@ -506,4 +526,42 @@ tbody tr:hover td:first-child::before {
   .stats-grid { grid-template-columns: 1fr; }
   .container { padding: 16px; }
   .tabs { width: 100%; overflow-x: auto; }
+}
+
+/* Cache info in tables */
+.cache-info {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-family: "SF Mono", "Fira Code", "Cascadia Code", monospace;
+  font-size: 12px;
+}
+
+.cache-hit {
+  color: var(--accent-green);
+  background: rgba(63,185,80,0.1);
+  padding: 1px 5px;
+  border-radius: 3px;
+}
+
+.cache-write {
+  color: var(--accent-yellow);
+  background: rgba(210,153,34,0.1);
+  padding: 1px 5px;
+  border-radius: 3px;
+}
+
+.cache-rate {
+  font-size: 10px;
+  color: var(--accent-cyan);
+  font-weight: 600;
+}
+
+/* Responsive cache cards */
+@media (max-width: 1200px) {
+  .stats-grid { grid-template-columns: repeat(3, 1fr); }
+}
+
+@media (max-width: 768px) {
+  .stats-grid { grid-template-columns: repeat(2, 1fr); }
 }

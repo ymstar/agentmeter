@@ -6,10 +6,14 @@ export interface ToolCallRecord {
     tool_name: string;
     model?: string;
     agent_type?: string;
+    project?: string;
     input_tokens: number;
     output_tokens: number;
+    cache_creation_input_tokens: number;
+    cache_read_input_tokens: number;
     estimated_cost: number;
     duration_ms?: number;
+    effort?: string;
     is_error: boolean;
     arguments_summary?: string;
 }
@@ -18,6 +22,8 @@ export interface DailySummary {
     total_calls: number;
     total_input_tokens: number;
     total_output_tokens: number;
+    total_cache_creation_tokens: number;
+    total_cache_read_tokens: number;
     total_cost: number;
     avg_duration: number;
 }
@@ -26,16 +32,21 @@ export interface ToolStats {
     call_count: number;
     total_input_tokens: number;
     total_output_tokens: number;
+    total_cache_creation_tokens: number;
+    total_cache_read_tokens: number;
     total_cost: number;
     avg_duration: number;
 }
 export interface SessionStats {
     session_id: string;
+    project: string;
     first_call: string;
     last_call: string;
     call_count: number;
     total_input_tokens: number;
     total_output_tokens: number;
+    total_cache_creation_tokens: number;
+    total_cache_read_tokens: number;
     total_cost: number;
     tools_used: number;
 }
@@ -44,6 +55,8 @@ export interface ModelStats {
     call_count: number;
     total_input_tokens: number;
     total_output_tokens: number;
+    total_cache_creation_tokens: number;
+    total_cache_read_tokens: number;
     total_cost: number;
 }
 export interface AgentStats {
@@ -51,6 +64,8 @@ export interface AgentStats {
     call_count: number;
     total_input_tokens: number;
     total_output_tokens: number;
+    total_cache_creation_tokens: number;
+    total_cache_read_tokens: number;
     total_cost: number;
 }
 //# sourceMappingURL=schema.d.ts.map

@@ -16,24 +16,32 @@ export declare class MeterDB {
             calls: number;
             input_tokens: number;
             output_tokens: number;
+            cache_creation_tokens: number;
+            cache_read_tokens: number;
             cost: number;
         };
         week: {
             calls: number;
             input_tokens: number;
             output_tokens: number;
+            cache_creation_tokens: number;
+            cache_read_tokens: number;
             cost: number;
         };
         month: {
             calls: number;
             input_tokens: number;
             output_tokens: number;
+            cache_creation_tokens: number;
+            cache_read_tokens: number;
             cost: number;
         };
         all_time: {
             calls: number;
             input_tokens: number;
             output_tokens: number;
+            cache_creation_tokens: number;
+            cache_read_tokens: number;
             cost: number;
         };
     };

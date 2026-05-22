@@ -7,6 +7,7 @@ import { statsCommand } from "./commands/stats.js";
 import { exportCommand } from "./commands/export.js";
 import { budgetCommand } from "./commands/budget.js";
 import { dashboardCommand } from "./dashboard/server.js";
+import { resetCommand } from "./commands/reset.js";
 
 const { values, positionals } = parseArgs({
   args: process.argv.slice(2),
@@ -15,6 +16,7 @@ const { values, positionals } = parseArgs({
     format: { type: "string", short: "f" },
     output: { type: "string", short: "o" },
     days: { type: "string", short: "d" },
+    force: { type: "boolean" },
     help: { type: "boolean", short: "h" },
   },
   allowPositionals: true,
@@ -60,6 +62,10 @@ async function main() {
       });
       break;
 
+    case "reset":
+      await resetCommand({ force: !!values.force });
+      break;
+
     case "help":
     case "--help":
     case "-h":
@@ -86,6 +92,7 @@ function printHelp() {
     dashboard    Launch web dashboard (default port 3940)
     budget       Check budget status and warnings
     export       Export data to CSV or JSON
+    reset        Clear all recorded data and start fresh
     hook         Internal: called by Claude Code hooks
 
   Options:

@@ -9,6 +9,8 @@ export function parseTokenUsage(response) {
         return {
             inputTokens: (usage.inputTokens ?? usage.input_tokens ?? 0),
             outputTokens: (usage.outputTokens ?? usage.output_tokens ?? 0),
+            cacheCreationInputTokens: (usage.cacheCreationInputTokens ?? usage.cache_creation_input_tokens ?? 0),
+            cacheReadInputTokens: (usage.cacheReadInputTokens ?? usage.cache_read_input_tokens ?? 0),
         };
     }
     // Anthropic-style usage
@@ -16,6 +18,8 @@ export function parseTokenUsage(response) {
         return {
             inputTokens: (r.input_tokens ?? 0),
             outputTokens: (r.output_tokens ?? 0),
+            cacheCreationInputTokens: (r.cache_creation_input_tokens ?? 0),
+            cacheReadInputTokens: (r.cache_read_input_tokens ?? 0),
         };
     }
     return null;

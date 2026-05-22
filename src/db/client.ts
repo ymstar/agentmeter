@@ -49,12 +49,21 @@ export class MeterDB {
     if (!columnNames.includes("project")) {
       this.db.exec("ALTER TABLE tool_calls ADD COLUMN project TEXT");
     }
+    if (!columnNames.includes("cache_creation_input_tokens")) {
+      this.db.exec("ALTER TABLE tool_calls ADD COLUMN cache_creation_input_tokens INTEGER DEFAULT 0");
+    }
+    if (!columnNames.includes("cache_read_input_tokens")) {
+      this.db.exec("ALTER TABLE tool_calls ADD COLUMN cache_read_input_tokens INTEGER DEFAULT 0");
+    }
+    if (!columnNames.includes("effort")) {
+      this.db.exec("ALTER TABLE tool_calls ADD COLUMN effort TEXT");
+    }
   }
 
   insertCall(record: ToolCallRecord): number {
     const stmt = this.db.prepare(`
-      INSERT INTO tool_calls (timestamp, session_id, tool_name, model, agent_type, project, input_tokens, output_tokens, estimated_cost, duration_ms, is_error, arguments_summary)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      INSERT INTO tool_calls (timestamp, session_id, tool_name, model, agent_type, project, input_tokens, output_tokens, cache_creation_input_tokens, cache_read_input_tokens, estimated_cost, duration_ms, effort, is_error, arguments_summary)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `);
     const result = stmt.run(
       record.timestamp,
@@ -65,8 +74,11 @@ export class MeterDB {
       record.project ?? null,
       record.input_tokens,
       record.output_tokens,
+      record.cache_creation_input_tokens ?? 0,
+      record.cache_read_input_tokens ?? 0,
       record.estimated_cost,
       record.duration_ms ?? null,
+      record.effort ?? null,
       record.is_error ? 1 : 0,
       record.arguments_summary ?? null,
     );
@@ -94,6 +106,8 @@ export class MeterDB {
         COUNT(*) as total_calls,
         COALESCE(SUM(input_tokens), 0) as total_input_tokens,
         COALESCE(SUM(output_tokens), 0) as total_output_tokens,
+        COALESCE(SUM(cache_creation_input_tokens), 0) as total_cache_creation_tokens,
+        COALESCE(SUM(cache_read_input_tokens), 0) as total_cache_read_tokens,
         COALESCE(SUM(estimated_cost), 0) as total_cost,
         COALESCE(AVG(duration_ms), 0) as avg_duration
       FROM tool_calls
@@ -111,6 +125,8 @@ export class MeterDB {
         COUNT(*) as call_count,
         COALESCE(SUM(input_tokens), 0) as total_input_tokens,
         COALESCE(SUM(output_tokens), 0) as total_output_tokens,
+        COALESCE(SUM(cache_creation_input_tokens), 0) as total_cache_creation_tokens,
+        COALESCE(SUM(cache_read_input_tokens), 0) as total_cache_read_tokens,
         COALESCE(SUM(estimated_cost), 0) as total_cost,
         COALESCE(AVG(duration_ms), 0) as avg_duration
       FROM tool_calls
@@ -131,6 +147,8 @@ export class MeterDB {
         COUNT(*) as call_count,
         COALESCE(SUM(input_tokens), 0) as total_input_tokens,
         COALESCE(SUM(output_tokens), 0) as total_output_tokens,
+        COALESCE(SUM(cache_creation_input_tokens), 0) as total_cache_creation_tokens,
+        COALESCE(SUM(cache_read_input_tokens), 0) as total_cache_read_tokens,
         COALESCE(SUM(estimated_cost), 0) as total_cost,
         COUNT(DISTINCT tool_name) as tools_used
       FROM tool_calls
@@ -150,6 +168,8 @@ export class MeterDB {
         COUNT(*) as call_count,
         COALESCE(SUM(input_tokens), 0) as total_input_tokens,
         COALESCE(SUM(output_tokens), 0) as total_output_tokens,
+        COALESCE(SUM(cache_creation_input_tokens), 0) as total_cache_creation_tokens,
+        COALESCE(SUM(cache_read_input_tokens), 0) as total_cache_read_tokens,
         COALESCE(SUM(estimated_cost), 0) as total_cost
       FROM tool_calls
       WHERE timestamp >= date('now', '-' || ? || ' days')
@@ -166,6 +186,8 @@ export class MeterDB {
         COUNT(*) as call_count,
         COALESCE(SUM(input_tokens), 0) as total_input_tokens,
         COALESCE(SUM(output_tokens), 0) as total_output_tokens,
+        COALESCE(SUM(cache_creation_input_tokens), 0) as total_cache_creation_tokens,
+        COALESCE(SUM(cache_read_input_tokens), 0) as total_cache_read_tokens,
         COALESCE(SUM(estimated_cost), 0) as total_cost
       FROM tool_calls
       WHERE timestamp >= date('now', '-' || ? || ' days')
@@ -176,10 +198,10 @@ export class MeterDB {
   }
 
   getOverview(): {
-    today: { calls: number; input_tokens: number; output_tokens: number; cost: number };
-    week: { calls: number; input_tokens: number; output_tokens: number; cost: number };
-    month: { calls: number; input_tokens: number; output_tokens: number; cost: number };
-    all_time: { calls: number; input_tokens: number; output_tokens: number; cost: number };
+    today: { calls: number; input_tokens: number; output_tokens: number; cache_creation_tokens: number; cache_read_tokens: number; cost: number };
+    week: { calls: number; input_tokens: number; output_tokens: number; cache_creation_tokens: number; cache_read_tokens: number; cost: number };
+    month: { calls: number; input_tokens: number; output_tokens: number; cache_creation_tokens: number; cache_read_tokens: number; cost: number };
+    all_time: { calls: number; input_tokens: number; output_tokens: number; cache_creation_tokens: number; cache_read_tokens: number; cost: number };
   } {
     const query = (where: string) => {
       const row = this.db.prepare(`
@@ -187,10 +209,12 @@ export class MeterDB {
           COUNT(*) as calls,
           COALESCE(SUM(input_tokens), 0) as input_tokens,
           COALESCE(SUM(output_tokens), 0) as output_tokens,
+          COALESCE(SUM(cache_creation_input_tokens), 0) as cache_creation_tokens,
+          COALESCE(SUM(cache_read_input_tokens), 0) as cache_read_tokens,
           COALESCE(SUM(estimated_cost), 0) as cost
         FROM tool_calls
         ${where}
-      `).get() as { calls: number; input_tokens: number; output_tokens: number; cost: number };
+      `).get() as { calls: number; input_tokens: number; output_tokens: number; cache_creation_tokens: number; cache_read_tokens: number; cost: number };
       return row;
     };
 

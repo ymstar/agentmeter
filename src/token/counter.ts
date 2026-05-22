@@ -1,6 +1,8 @@
 export interface TokenUsage {
   inputTokens: number;
   outputTokens: number;
+  cacheCreationInputTokens: number;
+  cacheReadInputTokens: number;
 }
 
 // Try to extract token usage from MCP tool call response
@@ -15,6 +17,8 @@ export function parseTokenUsage(response: unknown): TokenUsage | null {
     return {
       inputTokens: (usage.inputTokens ?? usage.input_tokens ?? 0) as number,
       outputTokens: (usage.outputTokens ?? usage.output_tokens ?? 0) as number,
+      cacheCreationInputTokens: (usage.cacheCreationInputTokens ?? usage.cache_creation_input_tokens ?? 0) as number,
+      cacheReadInputTokens: (usage.cacheReadInputTokens ?? usage.cache_read_input_tokens ?? 0) as number,
     };
   }
 
@@ -23,6 +27,8 @@ export function parseTokenUsage(response: unknown): TokenUsage | null {
     return {
       inputTokens: (r.input_tokens ?? 0) as number,
       outputTokens: (r.output_tokens ?? 0) as number,
+      cacheCreationInputTokens: (r.cache_creation_input_tokens ?? 0) as number,
+      cacheReadInputTokens: (r.cache_read_input_tokens ?? 0) as number,
     };
   }
 

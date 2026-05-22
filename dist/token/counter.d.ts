@@ -1,6 +1,8 @@
 export interface TokenUsage {
     inputTokens: number;
     outputTokens: number;
+    cacheCreationInputTokens: number;
+    cacheReadInputTokens: number;
 }
 export declare function parseTokenUsage(response: unknown): TokenUsage | null;
 export declare function estimateTokens(text: string): number;

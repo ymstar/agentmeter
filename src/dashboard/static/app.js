@@ -177,17 +177,28 @@ async function updateOverview() {
   document.getElementById('cost-month').textContent = formatCost(data.all_time.cost) + ' all time';
   document.getElementById('total-tokens').textContent = formatTokens(data.month.input_tokens + data.month.output_tokens) + ' total tokens';
 
+  // Cache hit rate (month)
+  const monthCacheRead = data.month.cache_read_tokens || 0;
+  const monthInput = data.month.input_tokens || 0;
+  const cacheHitRate = monthInput > 0 ? Math.round((monthCacheRead / monthInput) * 100) : 0;
+  document.getElementById('cache-rate').textContent = cacheHitRate + '%';
+  document.getElementById('cache-read').textContent = '↓ ' + formatTokens(monthCacheRead) + ' read';
+  document.getElementById('cache-write').textContent = '↑ ' + formatTokens(data.month.cache_creation_tokens || 0) + ' write';
+  document.getElementById('cache-tokens').textContent = formatTokens(monthCacheRead + (data.month.cache_creation_tokens || 0)) + ' cached';
+
   // Sparklines from daily data (last 7 days)
   const recent = daily.slice(0, 7).reverse();
   const inputTrend = recent.map(d => d.total_input_tokens);
   const outputTrend = recent.map(d => d.total_output_tokens);
   const totalTrend = recent.map(d => d.total_input_tokens + d.total_output_tokens);
   const costTrend = recent.map(d => d.total_cost);
+  const cacheTrend = recent.map(d => d.total_cache_read_tokens || 0);
 
   drawSparkline('spark-today', totalTrend, COLORS.blue);
   drawSparkline('spark-week', totalTrend, COLORS.green);
   drawSparkline('spark-month', totalTrend, COLORS.yellow);
   drawSparkline('spark-cost', costTrend, COLORS.purple);
+  drawSparkline('spark-cache', cacheTrend, COLORS.cyan);
 }
 
 // Update trend chart
@@ -196,6 +207,7 @@ async function updateTrendChart() {
   const labels = data.map(d => d.date).reverse();
   const inputTokens = data.map(d => d.total_input_tokens).reverse();
   const outputTokens = data.map(d => d.total_output_tokens).reverse();
+  const cacheReadTokens = data.map(d => d.total_cache_read_tokens || 0).reverse();
 
   const ctx = document.getElementById('trend-chart').getContext('2d');
 
@@ -203,6 +215,7 @@ async function updateTrendChart() {
     trendChart.data.labels = labels;
     trendChart.data.datasets[0].data = inputTokens;
     trendChart.data.datasets[1].data = outputTokens;
+    trendChart.data.datasets[2].data = cacheReadTokens;
     trendChart.update();
     return;
   }
@@ -231,6 +244,18 @@ async function updateTrendChart() {
           fill: true,
           tension: 0.4,
           borderWidth: 2,
+          pointRadius: 0,
+          pointHoverRadius: 4,
+        },
+        {
+          label: 'Cache Read',
+          data: cacheReadTokens,
+          borderColor: COLORS.cyan,
+          backgroundColor: COLORS.cyan + '18',
+          fill: false,
+          tension: 0.4,
+          borderWidth: 2,
+          borderDash: [6, 3],
           pointRadius: 0,
           pointHoverRadius: 4,
         },
@@ -513,21 +538,35 @@ async function updateCallsTable() {
   const tbody = document.getElementById('calls-table');
 
   if (data.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="7" class="empty-state"><div class="empty-icon">\u{1F4CA}</div>No tool calls recorded yet.<br><small>Start using Claude Code to see data here.</small></td></tr>';
+    tbody.innerHTML = '<tr><td colspan="9" class="empty-state"><div class="empty-icon">\u{1F4CA}</div>No tool calls recorded yet.<br><small>Start using Claude Code to see data here.</small></td></tr>';
     return;
   }
 
-  tbody.innerHTML = data.map((call, idx) => `
-    <tr style="animation:slideUp 0.3s ease ${idx*0.02}s both">
+  tbody.innerHTML = data.map((call, idx) => {
+    const cacheRead = call.cache_read_input_tokens || 0;
+    const cacheCreate = call.cache_creation_input_tokens || 0;
+    const input = call.input_tokens || 0;
+    let cacheHtml = '-';
+    if (cacheRead > 0 || cacheCreate > 0) {
+      const hitRate = input > 0 ? Math.round((cacheRead / input) * 100) : 0;
+      const parts = [];
+      if (cacheRead > 0) parts.push(`<span class="cache-hit" title="Cache read">${formatTokens(cacheRead)}</span>`);
+      if (cacheCreate > 0) parts.push(`<span class="cache-write" title="Cache write">${formatTokens(cacheCreate)}</span>`);
+      cacheHtml = `<span class="cache-info">${parts.join(' ')} <span class="cache-rate">${hitRate}%</span></span>`;
+    }
+    const effort = call.effort || '-';
+    return `<tr style="animation:slideUp 0.3s ease ${idx*0.02}s both">
       <td>${formatTime(call.timestamp)}</td>
       <td><strong>${escapeHtml(call.tool_name)}</strong></td>
       <td><span style="opacity:0.8">${escapeHtml(call.model || '-')}</span></td>
+      <td><span class="badge" style="background:rgba(88,166,255,0.1);color:var(--accent)">${escapeHtml(effort)}</span></td>
       <td class="token-value">${formatTokens(call.input_tokens)}</td>
       <td class="token-value">${formatTokens(call.output_tokens)}</td>
+      <td class="token-value">${cacheHtml}</td>
       <td class="token-value">${formatCost(call.estimated_cost)}</td>
       <td>${call.is_error ? '<span class="badge badge-error">Error</span>' : '<span class="badge badge-success">OK</span>'}</td>
-    </tr>
-  `).join('');
+    </tr>`;
+  }).join('');
 }
 
 // Update last updated time
