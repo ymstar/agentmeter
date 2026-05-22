@@ -1,18 +1,20 @@
 <p align="center">
-  <img src="assets/logo.svg" alt="AgentMeter" width="400">
+  <img src="assets/logo.svg" alt="AgentMeter" width="500">
 </p>
 
 <p align="center">
-  <strong>Token Usage &amp; Cost Tracking for Claude Code</strong>
+  <h2 align="center">Token Usage &amp; Cost Tracking for Claude Code</h2>
+</p>
+
+<p align="center">
+  <a href="https://www.npmjs.com/package/@ymstar/agentmeter"><img src="https://img.shields.io/npm/v/@ymstar/agentmeter?style=flat-square&logo=npm&color=cb3837" alt="npm version"></a>
+  <a href="https://github.com/ymstar/agentmeter/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/ymstar/agentmeter/ci.yml?style=flat-square&logo=github&label=CI" alt="CI"></a>
+  <a href="https://github.com/ymstar/agentmeter/blob/master/LICENSE"><img src="https://img.shields.io/github/license/ymstar/agentmeter?style=flat-square&color=blue" alt="License"></a>
+  <a href="https://github.com/ymstar/agentmeter"><img src="https://img.shields.io/github/stars/ymstar/agentmeter?style=flat-square&logo=github" alt="GitHub stars"></a>
 </p>
 
 <p align="center">
   <a href="#"><img src="https://img.shields.io/badge/Claude_Code-supported-blueviolet.svg" alt="Claude Code"></a>
-  <a href="https://www.npmjs.com/package/@ymstar/agentmeter"><img src="https://img.shields.io/npm/v/@ymstar/agentmeter?style=flat-square&logo=npm&color=cb3837" alt="npm version"></a>
-  <a href="https://www.npmjs.com/package/@ymstar/agentmeter"><img src="https://img.shields.io/npm/dt/@ymstar/agentmeter?style=flat-square&logo=npm&color=cb3837" alt="npm downloads"></a>
-  <a href="https://github.com/ymstar/agentmeter/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/ymstar/agentmeter/ci.yml?style=flat-square&logo=github&label=CI" alt="CI"></a>
-  <a href="https://github.com/ymstar/agentmeter/blob/master/LICENSE"><img src="https://img.shields.io/github/license/ymstar/agentmeter?style=flat-square&color=blue" alt="License"></a>
-  <a href="https://github.com/ymstar/agentmeter"><img src="https://img.shields.io/github/stars/ymstar/agentmeter?style=flat-square&logo=github" alt="GitHub stars"></a>
 </p>
 
 ---
