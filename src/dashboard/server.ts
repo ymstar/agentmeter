@@ -64,6 +64,24 @@ function handleRequest(req: IncomingMessage, res: ServerResponse, db: MeterDB): 
     return;
   }
 
+  if (url.pathname === "/api/sessions") {
+    const days = parseInt(url.searchParams.get("days") ?? "30");
+    sendJson(res, 200, db.getSessionStats(days));
+    return;
+  }
+
+  if (url.pathname === "/api/models") {
+    const days = parseInt(url.searchParams.get("days") ?? "30");
+    sendJson(res, 200, db.getModelStats(days));
+    return;
+  }
+
+  if (url.pathname === "/api/agents") {
+    const days = parseInt(url.searchParams.get("days") ?? "30");
+    sendJson(res, 200, db.getAgentStats(days));
+    return;
+  }
+
   if (url.pathname === "/api/calls") {
     const limit = parseInt(url.searchParams.get("limit") ?? "50");
     sendJson(res, 200, db.getRecentCalls(limit));

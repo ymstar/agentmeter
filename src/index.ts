@@ -4,12 +4,17 @@ import { parseArgs } from "node:util";
 import { initCommand } from "./commands/init.js";
 import { hookCommand } from "./commands/hook.js";
 import { statsCommand } from "./commands/stats.js";
+import { exportCommand } from "./commands/export.js";
+import { budgetCommand } from "./commands/budget.js";
 import { dashboardCommand } from "./dashboard/server.js";
 
 const { values, positionals } = parseArgs({
   args: process.argv.slice(2),
   options: {
     port: { type: "string", short: "p" },
+    format: { type: "string", short: "f" },
+    output: { type: "string", short: "o" },
+    days: { type: "string", short: "d" },
     help: { type: "boolean", short: "h" },
   },
   allowPositionals: true,
@@ -35,6 +40,18 @@ async function main() {
 
     case "stats":
       statsCommand();
+      break;
+
+    case "export":
+      exportCommand({
+        format: values.format as string | undefined,
+        output: values.output as string | undefined,
+        days: values.days as string | undefined,
+      });
+      break;
+
+    case "budget":
+      budgetCommand();
       break;
 
     case "dashboard":
@@ -67,15 +84,21 @@ function printHelp() {
     init         Configure Claude Code hooks (one-time setup)
     stats        Show token usage statistics in terminal
     dashboard    Launch web dashboard (default port 3940)
+    budget       Check budget status and warnings
+    export       Export data to CSV or JSON
     hook         Internal: called by Claude Code hooks
 
   Options:
-    -p, --port <port>    Dashboard port (default: 3940)
-    -h, --help           Show this help
+    -p, --port <port>      Dashboard port (default: 3940)
+    -f, --format <format>  Export format: csv (default), json
+    -o, --output <file>    Output file (default: stdout)
+    -d, --days <n>         Number of days to export (default: 30)
+    -h, --help             Show this help
 
   Quick Start:
     npx @ymstar/agentmeter init
     npx @ymstar/agentmeter dashboard
+    npx @ymstar/agentmeter export -f csv -o data.csv
   `);
 }
 

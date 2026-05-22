@@ -17,6 +17,7 @@ function formatCost(usd) {
 }
 
 function formatTime(ts) {
+  if (!ts) return '-';
   const d = new Date(ts);
   const now = new Date();
   const diffMs = now - d;
@@ -27,6 +28,30 @@ function formatTime(ts) {
   const diffHours = Math.floor(diffMins / 60);
   if (diffHours < 24) return diffHours + 'h ago';
   return d.toLocaleDateString();
+}
+
+function formatDuration(start, end) {
+  if (!start || !end) return '-';
+  const diffMs = new Date(end) - new Date(start);
+  const diffMins = Math.floor(diffMs / 60000);
+  if (diffMins < 60) return diffMins + 'm';
+  const diffHours = Math.floor(diffMins / 60);
+  const remainMins = diffMins % 60;
+  if (diffHours < 24) return diffHours + 'h ' + remainMins + 'm';
+  const diffDays = Math.floor(diffHours / 24);
+  return diffDays + 'd ' + (diffHours % 24) + 'h';
+}
+
+function shortenSessionId(id) {
+  if (!id) return '-';
+  if (id.length <= 12) return id;
+  return id.slice(0, 8) + '...';
+}
+
+function escapeHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
 }
 
 // Chart colors
@@ -171,22 +196,101 @@ async function updateToolsChart() {
   });
 }
 
+// Update tools table
+async function updateToolsTable() {
+  const data = await api('/api/tools?days=' + currentDays);
+  const tbody = document.getElementById('tools-table');
+
+  if (data.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="6" class="empty-state"><div class="empty-icon">📊</div>No data yet</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = data.map(stat => `
+    <tr>
+      <td><strong>${escapeHtml(stat.tool_name)}</strong></td>
+      <td class="token-value">${stat.call_count.toLocaleString()}</td>
+      <td class="token-value">${formatTokens(stat.total_input_tokens)}</td>
+      <td class="token-value">${formatTokens(stat.total_output_tokens)}</td>
+      <td class="token-value">${formatTokens(stat.total_input_tokens + stat.total_output_tokens)}</td>
+      <td class="token-value">${formatCost(stat.total_cost)}</td>
+    </tr>
+  `).join('');
+}
+
+// Update sessions table
+async function updateSessionsTable() {
+  const data = await api('/api/sessions?days=' + currentDays);
+  const tbody = document.getElementById('sessions-table');
+
+  if (data.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="6" class="empty-state"><div class="empty-icon">🔗</div>No sessions recorded</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = data.map(stat => `
+    <tr>
+      <td><code title="${escapeHtml(stat.session_id)}">${shortenSessionId(stat.session_id)}</code></td>
+      <td>${formatDuration(stat.first_call, stat.last_call)}</td>
+      <td class="token-value">${stat.call_count.toLocaleString()}</td>
+      <td class="token-value">${stat.tools_used}</td>
+      <td class="token-value">${formatTokens(stat.total_input_tokens + stat.total_output_tokens)}</td>
+      <td class="token-value">${formatCost(stat.total_cost)}</td>
+    </tr>
+  `).join('');
+}
+
+// Update models table
+async function updateModelsTable() {
+  const data = await api('/api/models?days=' + currentDays);
+  const tbody = document.getElementById('models-table');
+
+  if (data.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="6" class="empty-state"><div class="empty-icon">🤖</div>No model data</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = data.map(stat => `
+    <tr>
+      <td><strong>${escapeHtml(stat.model)}</strong></td>
+      <td class="token-value">${stat.call_count.toLocaleString()}</td>
+      <td class="token-value">${formatTokens(stat.total_input_tokens)}</td>
+      <td class="token-value">${formatTokens(stat.total_output_tokens)}</td>
+      <td class="token-value">${formatTokens(stat.total_input_tokens + stat.total_output_tokens)}</td>
+      <td class="token-value">${formatCost(stat.total_cost)}</td>
+    </tr>
+  `).join('');
+}
+
+// Update agents table
+async function updateAgentsTable() {
+  const data = await api('/api/agents?days=' + currentDays);
+  const tbody = document.getElementById('agents-table');
+
+  if (data.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="6" class="empty-state"><div class="empty-icon">🎯</div>No agent data</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = data.map(stat => `
+    <tr>
+      <td><strong>${escapeHtml(stat.agent_type)}</strong></td>
+      <td class="token-value">${stat.call_count.toLocaleString()}</td>
+      <td class="token-value">${formatTokens(stat.total_input_tokens)}</td>
+      <td class="token-value">${formatTokens(stat.total_output_tokens)}</td>
+      <td class="token-value">${formatTokens(stat.total_input_tokens + stat.total_output_tokens)}</td>
+      <td class="token-value">${formatCost(stat.total_cost)}</td>
+    </tr>
+  `).join('');
+}
+
 // Update calls table
 async function updateCallsTable() {
   const data = await api('/api/calls?limit=20');
-
   const tbody = document.getElementById('calls-table');
 
   if (data.length === 0) {
-    tbody.innerHTML = `
-      <tr>
-        <td colspan="6" class="empty-state">
-          <div class="empty-icon">📊</div>
-          No tool calls recorded yet.<br>
-          <small>Start using Claude Code to see data here.</small>
-        </td>
-      </tr>
-    `;
+    tbody.innerHTML = '<tr><td colspan="7" class="empty-state"><div class="empty-icon">📊</div>No tool calls recorded yet.<br><small>Start using Claude Code to see data here.</small></td></tr>';
     return;
   }
 
@@ -194,6 +298,7 @@ async function updateCallsTable() {
     <tr>
       <td>${formatTime(call.timestamp)}</td>
       <td><strong>${escapeHtml(call.tool_name)}</strong></td>
+      <td>${escapeHtml(call.model || '-')}</td>
       <td class="token-value">${formatTokens(call.input_tokens)}</td>
       <td class="token-value">${formatTokens(call.output_tokens)}</td>
       <td class="token-value">${formatCost(call.estimated_cost)}</td>
@@ -202,21 +307,24 @@ async function updateCallsTable() {
   `).join('');
 }
 
-function escapeHtml(str) {
-  const div = document.createElement('div');
-  div.textContent = str;
-  return div.innerHTML;
-}
+// Tab switching
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    // Update active tab button
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
 
-// Refresh all
-async function refresh() {
-  await Promise.all([
-    updateOverview(),
-    updateTrendChart(),
-    updateToolsChart(),
-    updateCallsTable(),
-  ]);
-}
+    // Show correct tab content
+    const tabId = 'tab-' + btn.dataset.tab;
+    document.querySelectorAll('.tab-content').forEach(content => {
+      content.classList.remove('active');
+    });
+    document.getElementById(tabId).classList.add('active');
+
+    // Load data for the tab
+    refreshActiveTab(btn.dataset.tab);
+  });
+});
 
 // Period selector
 document.querySelectorAll('.period-btn').forEach(btn => {
@@ -227,6 +335,31 @@ document.querySelectorAll('.period-btn').forEach(btn => {
     refresh();
   });
 });
+
+// Refresh active tab data
+async function refreshActiveTab(tab) {
+  switch (tab) {
+    case 'tools': await updateToolsTable(); break;
+    case 'sessions': await updateSessionsTable(); break;
+    case 'models': await updateModelsTable(); break;
+    case 'agents': await updateAgentsTable(); break;
+    case 'calls': await updateCallsTable(); break;
+  }
+}
+
+// Refresh all
+async function refresh() {
+  await Promise.all([
+    updateOverview(),
+    updateTrendChart(),
+    updateToolsChart(),
+    updateToolsTable(),
+    updateSessionsTable(),
+    updateModelsTable(),
+    updateAgentsTable(),
+    updateCallsTable(),
+  ]);
+}
 
 // Initial load
 refresh();

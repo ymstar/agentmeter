@@ -4,6 +4,8 @@ CREATE TABLE IF NOT EXISTS tool_calls (
   timestamp TEXT NOT NULL,
   session_id TEXT,
   tool_name TEXT NOT NULL,
+  model TEXT,
+  agent_type TEXT,
   input_tokens INTEGER DEFAULT 0,
   output_tokens INTEGER DEFAULT 0,
   estimated_cost REAL DEFAULT 0,
@@ -16,6 +18,8 @@ CREATE TABLE IF NOT EXISTS tool_calls (
 CREATE INDEX IF NOT EXISTS idx_tool_calls_timestamp ON tool_calls(timestamp);
 CREATE INDEX IF NOT EXISTS idx_tool_calls_tool_name ON tool_calls(tool_name);
 CREATE INDEX IF NOT EXISTS idx_tool_calls_session_id ON tool_calls(session_id);
+CREATE INDEX IF NOT EXISTS idx_tool_calls_model ON tool_calls(model);
+CREATE INDEX IF NOT EXISTS idx_tool_calls_agent_type ON tool_calls(agent_type);
 `;
 
 export interface ToolCallRecord {
@@ -23,6 +27,8 @@ export interface ToolCallRecord {
   timestamp: string;
   session_id?: string;
   tool_name: string;
+  model?: string;
+  agent_type?: string;
   input_tokens: number;
   output_tokens: number;
   estimated_cost: number;
@@ -47,4 +53,31 @@ export interface ToolStats {
   total_output_tokens: number;
   total_cost: number;
   avg_duration: number;
+}
+
+export interface SessionStats {
+  session_id: string;
+  first_call: string;
+  last_call: string;
+  call_count: number;
+  total_input_tokens: number;
+  total_output_tokens: number;
+  total_cost: number;
+  tools_used: number;
+}
+
+export interface ModelStats {
+  model: string;
+  call_count: number;
+  total_input_tokens: number;
+  total_output_tokens: number;
+  total_cost: number;
+}
+
+export interface AgentStats {
+  agent_type: string;
+  call_count: number;
+  total_input_tokens: number;
+  total_output_tokens: number;
+  total_cost: number;
 }
