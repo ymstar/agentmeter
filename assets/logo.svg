@@ -1,17 +1,41 @@
-<svg width="340" height="100" viewBox="0 0 340 100" xmlns="http://www.w3.org/2000/svg">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 200">
   <defs>
-    <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#58a6ff"/>
-      <stop offset="100%" style="stop-color:#bc8cff"/>
+    <linearGradient id="titleGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#58a6ff;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#bc8cff;stop-opacity:1" />
     </linearGradient>
+    <linearGradient id="barGrad" x1="0%" y1="100%" x2="0%" y2="0%">
+      <stop offset="0%" style="stop-color:#58a6ff;stop-opacity:0.9" />
+      <stop offset="100%" style="stop-color:#bc8cff;stop-opacity:0.9" />
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <filter id="barGlow">
+      <feGaussianBlur stdDeviation="1.5" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
   </defs>
-  <!-- Icon: rounded square with bars -->
-  <rect x="8" y="14" width="72" height="72" rx="16" fill="url(#grad)"/>
-  <rect x="24" y="50" width="8" height="20" rx="2" fill="#fff" opacity="0.9"/>
-  <rect x="36" y="36" width="8" height="34" rx="2" fill="#fff" opacity="0.9"/>
-  <rect x="48" y="24" width="8" height="46" rx="2" fill="#fff" opacity="0.9"/>
-  <rect x="60" y="42" width="8" height="28" rx="2" fill="#fff" opacity="0.9"/>
-  <!-- Text -->
-  <text x="96" y="62" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="40" font-weight="700" fill="#24292f">Agent</text>
-  <text x="210" y="62" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="40" font-weight="700" fill="url(#grad)">Meter</text>
+
+  <!-- Background -->
+  <rect width="800" height="200" fill="#0f172a"/>
+
+  <!-- Bar chart icon (left side) -->
+  <rect x="170" y="108" width="12" height="32" rx="2" fill="url(#barGrad)" filter="url(#barGlow)"/>
+  <rect x="188" y="82" width="12" height="58" rx="2" fill="url(#barGrad)" filter="url(#barGlow)"/>
+  <rect x="206" y="60" width="12" height="80" rx="2" fill="url(#barGrad)" filter="url(#barGlow)"/>
+  <rect x="224" y="94" width="12" height="46" rx="2" fill="url(#barGrad)" filter="url(#barGlow)"/>
+
+  <!-- Title -->
+  <text x="400" y="120" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="72" fill="url(#titleGrad)" text-anchor="middle" font-weight="bold" filter="url(#glow)" letter-spacing="-2">AgentMeter</text>
+
+  <!-- Subtitle -->
+  <text x="400" y="155" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="16" fill="#94a3b8" text-anchor="middle" letter-spacing="0.5">Track Token Usage &amp; Costs for AI Agents</text>
 </svg>

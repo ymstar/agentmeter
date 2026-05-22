@@ -1,9 +1,5 @@
 <p align="center">
-  <img src="assets/logo.svg" alt="AgentMeter" width="340">
-</p>
-
-<p align="center">
-  <h2 align="center">Token Usage &amp; Cost Tracking for Claude Code</h2>
+  <img src="assets/logo.svg" alt="AgentMeter" width="800">
 </p>
 
 <p align="center">
