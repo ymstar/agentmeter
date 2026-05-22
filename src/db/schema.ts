@@ -29,6 +29,7 @@ export interface ToolCallRecord {
   tool_name: string;
   model?: string;
   agent_type?: string;
+  project?: string;
   input_tokens: number;
   output_tokens: number;
   estimated_cost: number;
@@ -57,6 +58,7 @@ export interface ToolStats {
 
 export interface SessionStats {
   session_id: string;
+  project: string;
   first_call: string;
   last_call: string;
   call_count: number;

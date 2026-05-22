@@ -1,6 +1,6 @@
 import { readFileSync } from "node:fs";
 import { homedir } from "node:os";
-import { join } from "node:path";
+import { join, basename } from "node:path";
 import { MeterDB } from "../db/client.js";
 import { parseTokenUsage, estimateFromArguments, estimateTokens } from "../token/counter.js";
 import { estimateCost } from "../token/pricing.js";
@@ -49,6 +49,9 @@ export function hookCommand(): void {
     // Detect agent type (Claude Code, Cursor, etc.)
     const agentType = detectAgentType(input);
 
+    // Extract project name from cwd
+    const project = input.cwd ? basename(input.cwd) : undefined;
+
     // Try to get token usage from response
     let tokenUsage = input.tool_response ? parseTokenUsage(input.tool_response) : null;
 
@@ -73,6 +76,7 @@ export function hookCommand(): void {
       tool_name: toolName,
       model: model,
       agent_type: agentType,
+      project: project,
       input_tokens: inputTokens,
       output_tokens: outputTokens,
       estimated_cost: cost,

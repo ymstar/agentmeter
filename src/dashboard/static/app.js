@@ -48,6 +48,17 @@ function shortenSessionId(id) {
   return id.slice(0, 8) + '...';
 }
 
+function formatSessionLabel(stat) {
+  const project = stat.project || '';
+  const time = stat.first_call ? new Date(stat.first_call).toLocaleString(undefined, {
+    month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
+  }) : '';
+  if (project && time) return project + ' — ' + time;
+  if (project) return project;
+  if (time) return time;
+  return shortenSessionId(stat.session_id);
+}
+
 function escapeHtml(str) {
   const div = document.createElement('div');
   div.textContent = str;
@@ -230,7 +241,7 @@ async function updateSessionsTable() {
 
   tbody.innerHTML = data.map(stat => `
     <tr>
-      <td><code title="${escapeHtml(stat.session_id)}">${shortenSessionId(stat.session_id)}</code></td>
+      <td title="${escapeHtml(stat.session_id)}">${escapeHtml(formatSessionLabel(stat))}</td>
       <td>${formatDuration(stat.first_call, stat.last_call)}</td>
       <td class="token-value">${stat.call_count.toLocaleString()}</td>
       <td class="token-value">${stat.tools_used}</td>

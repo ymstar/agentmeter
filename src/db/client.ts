@@ -31,7 +31,8 @@ export class MeterDB {
       CREATE INDEX IF NOT EXISTS idx_tool_calls_tool_name ON tool_calls(tool_name);
       CREATE INDEX IF NOT EXISTS idx_tool_calls_session_id ON tool_calls(session_id);
       CREATE INDEX IF NOT EXISTS idx_tool_calls_model ON tool_calls(model);
-      CREATE INDEX IF NOT EXISTS idx_tool_calls_agent_type ON tool_calls(agent_type);`);
+      CREATE INDEX IF NOT EXISTS idx_tool_calls_agent_type ON tool_calls(agent_type);
+      CREATE INDEX IF NOT EXISTS idx_tool_calls_project ON tool_calls(project);`);
   }
 
   private migrate(): void {
@@ -45,12 +46,15 @@ export class MeterDB {
     if (!columnNames.includes("agent_type")) {
       this.db.exec("ALTER TABLE tool_calls ADD COLUMN agent_type TEXT");
     }
+    if (!columnNames.includes("project")) {
+      this.db.exec("ALTER TABLE tool_calls ADD COLUMN project TEXT");
+    }
   }
 
   insertCall(record: ToolCallRecord): number {
     const stmt = this.db.prepare(`
-      INSERT INTO tool_calls (timestamp, session_id, tool_name, model, agent_type, input_tokens, output_tokens, estimated_cost, duration_ms, is_error, arguments_summary)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      INSERT INTO tool_calls (timestamp, session_id, tool_name, model, agent_type, project, input_tokens, output_tokens, estimated_cost, duration_ms, is_error, arguments_summary)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `);
     const result = stmt.run(
       record.timestamp,
@@ -58,6 +62,7 @@ export class MeterDB {
       record.tool_name,
       record.model ?? null,
       record.agent_type ?? null,
+      record.project ?? null,
       record.input_tokens,
       record.output_tokens,
       record.estimated_cost,
@@ -120,6 +125,7 @@ export class MeterDB {
     const stmt = this.db.prepare(`
       SELECT
         session_id,
+        COALESCE(MIN(project), '') as project,
         MIN(timestamp) as first_call,
         MAX(timestamp) as last_call,
         COUNT(*) as call_count,
