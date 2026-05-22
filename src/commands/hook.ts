@@ -1,4 +1,4 @@
-import { readFileSync } from "node:fs";
+import { readFileSync, existsSync } from "node:fs";
 import { homedir } from "node:os";
 import { join, basename } from "node:path";
 import { MeterDB } from "../db/client.js";
@@ -150,6 +150,17 @@ function detectModel(input: HookInput): string | undefined {
   const envModel = process.env.ANTHROPIC_MODEL ?? process.env.CLAUDE_MODEL ?? process.env.OPENAI_MODEL;
   if (envModel) return envModel;
 
+  // Try reading from Claude Code settings
+  try {
+    const settingsPath = join(homedir(), ".claude", "settings.json");
+    if (existsSync(settingsPath)) {
+      const settings = JSON.parse(readFileSync(settingsPath, "utf-8"));
+      // Check env section first, then top-level model
+      const model = settings?.env?.ANTHROPIC_MODEL ?? settings?.model;
+      if (model && typeof model === "string") return model;
+    }
+  } catch { /* ignore */ }
+
   // Default based on common patterns
   return "claude-sonnet-4-20250514";
 }
@@ -170,6 +181,9 @@ function detectAgentType(input: HookInput): string {
       return "claude-code";
     }
   }
+
+  // Check if Claude Code is installed (most common case)
+  if (existsSync(join(homedir(), ".claude"))) return "claude-code";
 
   return "unknown";
 }
