@@ -4,6 +4,8 @@ import { join } from "node:path";
 import { homedir } from "node:os";
 import { MeterDB } from "../db/client.js";
 
+const pkg = JSON.parse(readFileSync(join(import.meta.dirname, "../../package.json"), "utf-8"));
+
 const DB_PATH = join(homedir(), ".agentmeter", "meter.db");
 const STATIC_DIR = join(import.meta.dirname, "static");
 
@@ -47,6 +49,11 @@ function handleRequest(req: IncomingMessage, res: ServerResponse, db: MeterDB): 
   const url = new URL(req.url ?? "/", `http://localhost`);
 
   // API endpoints
+  if (url.pathname === "/api/version") {
+    sendJson(res, 200, { version: pkg.version });
+    return;
+  }
+
   if (url.pathname === "/api/overview") {
     sendJson(res, 200, db.getOverview());
     return;

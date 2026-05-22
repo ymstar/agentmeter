@@ -99,6 +99,19 @@ header {
   letter-spacing: 0.3px;
 }
 
+.version-tag {
+  display: inline-block;
+  padding: 1px 6px;
+  border-radius: 4px;
+  background: rgba(88,166,255,0.1);
+  color: var(--accent);
+  font-size: 10px;
+  font-weight: 600;
+  font-family: "SF Mono", "Fira Code", "Cascadia Code", monospace;
+  margin-left: 4px;
+  vertical-align: middle;
+}
+
 .header-controls {
   display: flex;
   align-items: center;

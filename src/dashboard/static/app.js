@@ -635,5 +635,11 @@ async function refresh() {
 // Initial load
 refresh();
 
+// Fetch and display version
+api('/api/version').then(data => {
+  const el = document.getElementById('version-tag');
+  if (el && data.version) el.textContent = 'v' + data.version;
+});
+
 // Auto-refresh every 5 seconds
 setInterval(refresh, 5000);
