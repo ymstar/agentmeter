@@ -2,7 +2,7 @@ import { readFileSync } from "node:fs";
 import { homedir } from "node:os";
 import { join } from "node:path";
 import { MeterDB } from "../db/client.js";
-import { parseTokenUsage, estimateFromArguments, estimateFromContent } from "../token/counter.js";
+import { parseTokenUsage, estimateFromArguments, estimateTokens } from "../token/counter.js";
 import { estimateCost } from "../token/pricing.js";
 const DB_PATH = join(homedir(), ".agentmeter", "meter.db");
 export function hookCommand() {
@@ -33,9 +33,13 @@ export function hookCommand() {
         const agentType = detectAgentType(input);
         // Try to get token usage from response
         let tokenUsage = input.tool_response ? parseTokenUsage(input.tool_response) : null;
-        // If no usage info, estimate from arguments and response
+        // Estimate input tokens from arguments
         const inputTokens = tokenUsage?.inputTokens ?? estimateFromArguments(input.tool_input ?? {});
-        const outputTokens = tokenUsage?.outputTokens ?? (input.tool_response?.content ? estimateFromContent(input.tool_response.content) : 0);
+        // Estimate output tokens from response
+        let outputTokens = tokenUsage?.outputTokens ?? 0;
+        if (outputTokens === 0 && input.tool_response) {
+            outputTokens = estimateResponseTokens(input.tool_response);
+        }
         // Estimate cost with detected model
         const cost = estimateCost(inputTokens, outputTokens, model);
         // Create argument summary (truncate sensitive data)
@@ -49,7 +53,7 @@ export function hookCommand() {
             input_tokens: inputTokens,
             output_tokens: outputTokens,
             estimated_cost: cost,
-            is_error: input.tool_response?.isError ?? false,
+            is_error: isError(input.tool_response),
             arguments_summary: argsSummary,
         });
     }
@@ -57,6 +61,53 @@ export function hookCommand() {
         db.close();
     }
     process.exit(0);
+}
+function estimateResponseTokens(response) {
+    if (!response)
+        return 0;
+    // If response is a string, estimate directly
+    if (typeof response === "string") {
+        return estimateTokens(response);
+    }
+    // If response is an object, try various fields
+    if (typeof response === "object") {
+        const r = response;
+        // MCP format: { content: [{ type: "text", text: "..." }] }
+        if (Array.isArray(r.content)) {
+            let total = 0;
+            for (const item of r.content) {
+                if (item && typeof item === "object") {
+                    const c = item;
+                    if (typeof c.text === "string") {
+                        total += estimateTokens(c.text);
+                    }
+                }
+            }
+            if (total > 0)
+                return total;
+        }
+        // Try common output fields
+        for (const key of ["output", "result", "text", "message", "data", "stdout"]) {
+            if (typeof r[key] === "string") {
+                return estimateTokens(r[key]);
+            }
+        }
+        // Estimate from the entire response object
+        const str = JSON.stringify(response);
+        if (str.length > 10) {
+            return estimateTokens(str);
+        }
+    }
+    return 0;
+}
+function isError(response) {
+    if (!response)
+        return false;
+    if (typeof response === "object") {
+        const r = response;
+        return r.isError === true || r.error !== undefined;
+    }
+    return false;
 }
 function detectModel(input) {
     // Check input field first
