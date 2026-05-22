@@ -1,12 +1,16 @@
-import { type ToolCallRecord, type DailySummary, type ToolStats } from "./schema.js";
+import { type ToolCallRecord, type DailySummary, type ToolStats, type SessionStats, type ModelStats, type AgentStats } from "./schema.js";
 export declare class MeterDB {
     private db;
     constructor(dbPath: string);
+    private migrate;
     insertCall(record: ToolCallRecord): number;
     getRecentCalls(limit?: number): ToolCallRecord[];
     getCallsByDateRange(start: string, end: string): ToolCallRecord[];
     getDailySummary(days?: number): DailySummary[];
     getToolStats(days?: number): ToolStats[];
+    getSessionStats(days?: number): SessionStats[];
+    getModelStats(days?: number): ModelStats[];
+    getAgentStats(days?: number): AgentStats[];
     getOverview(): {
         today: {
             calls: number;
