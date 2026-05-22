@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/logo.svg" alt="AgentMeter" width="500">
+  <img src="assets/logo.svg" alt="AgentMeter" width="340">
 </p>
 
 <p align="center">
