@@ -175,7 +175,12 @@ function detectModel(input: HookInput): string | undefined {
       const model = settings?.env?.ANTHROPIC_MODEL ?? settings?.model;
       if (model && typeof model === "string") return model;
     }
-  } catch { /* ignore */ }
+  } catch {
+    // Settings read failed — fall through to default
+    if (process.env.DEBUG_AGENTMETER) {
+      console.error("[agentmeter] Warning: failed to read ~/.claude/settings.json for model detection");
+    }
+  }
 
   // Default based on common patterns
   return "claude-sonnet-4-20250514";
@@ -193,6 +198,13 @@ function detectAgentType(input: HookInput): string {
   // Check for Claude Code session ID from env
   if (process.env.CLAUDE_CODE_SESSION_ID) return "claude-code";
 
+  // Detect from process invocation — if this hook was spawned by Claude Code's
+  // PostToolUse hook, the command will contain "agentmeter" and "hook".
+  // This catches cases where env vars (CLAUDECODE, etc.) are not inherited
+  // by the hook subprocess.
+  const argv = process.argv.join(" ").toLowerCase();
+  if (argv.includes("agentmeter") && argv.includes("hook")) return "claude-code";
+
   // Check session_id format (Claude Code uses UUIDs)
   if (input.session_id && typeof input.session_id === "string") {
     if (/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(input.session_id)) {
@@ -206,7 +218,7 @@ function detectAgentType(input: HookInput): string {
   // Check if cwd is provided (Claude Code sends this)
   if (input.cwd) return "claude-code";
 
-  // Check if Claude Code is installed
+  // Check if Claude Code is installed (strong signal — moved up from bottom)
   if (existsSync(join(homedir(), ".claude"))) return "claude-code";
 
   // Check model - if it's a Claude model, it's likely Claude Code
