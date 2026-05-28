@@ -1,56 +1,57 @@
-{
-  "name": "@ymstar/agentmeter",
-  "version": "0.3.1",
-  "description": "Token usage and cost tracking for Claude Code",
-  "type": "module",
-  "bin": {
-    "agentmeter": "./dist/index.js"
-  },
-  "scripts": {
-    "build": "tsc -p tsconfig.json && cp -r src/dashboard/static dist/dashboard/",
-    "test": "vitest run",
-    "dev": "tsc -p tsconfig.json --watch"
-  },
-  "keywords": [
-    "ai",
-    "agent",
-    "token",
-    "metering",
-    "mcp",
-    "claude",
-    "claude-code",
-    "token-tracking",
-    "cost-monitoring",
-    "llm",
-    "dashboard",
-    "anthropic",
-    "cursor",
-    "gemini-cli",
-    "prompt-caching",
-    "developer-tools",
-    "cli",
-    "sqlite",
-    "token-usage",
-    "ai-cost",
-    "agent-metering"
-  ],
-  "author": "",
-  "license": "MIT",
-  "dependencies": {
-    "better-sqlite3": "^11.0.0"
-  },
-  "devDependencies": {
-    "@types/better-sqlite3": "^7.6.0",
-    "@types/node": "^22.0.0",
-    "typescript": "^5.7.0",
-    "vitest": "^3.1.0"
-  },
-  "files": [
-    "dist",
-    "dist/dashboard/static"
-  ],
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/ymstar/agentmeter.git"
-  }
-}
+     1|     1|{
+     2|     2|  "name": "@ymstar/agentmeter",
+     3|     3|  "version": "0.4.0",
+     4|     4|  "description": "Token usage and cost tracking for Claude Code",
+     5|     5|  "type": "module",
+     6|     6|  "bin": {
+     7|     7|    "agentmeter": "./dist/index.js"
+     8|     8|  },
+     9|     9|  "scripts": {
+    10|    10|    "build": "tsc -p tsconfig.json && cp -r src/dashboard/static dist/dashboard/",
+    11|    11|    "test": "vitest run",
+    12|    12|    "dev": "tsc -p tsconfig.json --watch"
+    13|    13|  },
+    14|    14|  "keywords": [
+    15|    15|    "ai",
+    16|    16|    "agent",
+    17|    17|    "token",
+    18|    18|    "metering",
+    19|    19|    "mcp",
+    20|    20|    "claude",
+    21|    21|    "claude-code",
+    22|    22|    "token-tracking",
+    23|    23|    "cost-monitoring",
+    24|    24|    "llm",
+    25|    25|    "dashboard",
+    26|    26|    "anthropic",
+    27|    27|    "cursor",
+    28|    28|    "gemini-cli",
+    29|    29|    "prompt-caching",
+    30|    30|    "developer-tools",
+    31|    31|    "cli",
+    32|    32|    "sqlite",
+    33|    33|    "token-usage",
+    34|    34|    "ai-cost",
+    35|    35|    "agent-metering"
+    36|    36|  ],
+    37|    37|  "author": "",
+    38|    38|  "license": "MIT",
+    39|    39|  "dependencies": {
+    40|    40|    "better-sqlite3": "^11.0.0"
+    41|    41|  },
+    42|    42|  "devDependencies": {
+    43|    43|    "@types/better-sqlite3": "^7.6.0",
+    44|    44|    "@types/node": "^22.0.0",
+    45|    45|    "typescript": "^5.7.0",
+    46|    46|    "vitest": "^3.1.0"
+    47|    47|  },
+    48|    48|  "files": [
+    49|    49|    "dist",
+    50|    50|    "dist/dashboard/static"
+    51|    51|  ],
+    52|    52|  "repository": {
+    53|    53|    "type": "git",
+    54|    54|    "url": "https://github.com/ymstar/agentmeter.git"
+    55|    55|  }
+    56|    56|}
+    57|    57|
