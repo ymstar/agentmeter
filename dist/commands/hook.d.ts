@@ -1,2 +1,2 @@
-     1|export declare function hookCommand(): void;
-     2|//# sourceMappingURL=hook.d.ts.map
+export declare function hookCommand(): void;
+//# sourceMappingURL=hook.d.ts.map
