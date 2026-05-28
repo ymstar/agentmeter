@@ -27,15 +27,15 @@
   <!-- Background -->
   <rect width="800" height="200" fill="#0f172a"/>
 
-  <!-- Bar chart icon (left side) -->
-  <rect x="170" y="108" width="12" height="32" rx="2" fill="url(#barGrad)" filter="url(#barGlow)"/>
-  <rect x="188" y="82" width="12" height="58" rx="2" fill="url(#barGrad)" filter="url(#barGlow)"/>
-  <rect x="206" y="60" width="12" height="80" rx="2" fill="url(#barGrad)" filter="url(#barGlow)"/>
-  <rect x="224" y="94" width="12" height="46" rx="2" fill="url(#barGrad)" filter="url(#barGlow)"/>
+  <!-- Bar chart icon (left side, moved left to avoid text overlap) -->
+  <rect x="70"  y="108" width="14" height="32" rx="2" fill="url(#barGrad)" filter="url(#barGlow)"/>
+  <rect x="92"  y="82"  width="14" height="58" rx="2" fill="url(#barGrad)" filter="url(#barGlow)"/>
+  <rect x="114" y="60"  width="14" height="80" rx="2" fill="url(#barGrad)" filter="url(#barGlow)"/>
+  <rect x="136" y="94"  width="14" height="46" rx="2" fill="url(#barGrad)" filter="url(#barGlow)"/>
 
-  <!-- Title -->
-  <text x="400" y="120" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="72" fill="url(#titleGrad)" text-anchor="middle" font-weight="bold" filter="url(#glow)" letter-spacing="-2">AgentMeter</text>
+  <!-- Title (shifted right with bars clearly separated) -->
+  <text x="440" y="120" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="72" fill="url(#titleGrad)" text-anchor="middle" font-weight="bold" filter="url(#glow)" letter-spacing="-2">AgentMeter</text>
 
   <!-- Subtitle -->
-  <text x="400" y="155" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="16" fill="#94a3b8" text-anchor="middle" letter-spacing="0.5">Track Token Usage &amp; Costs for AI Agents</text>
+  <text x="440" y="155" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="16" fill="#94a3b8" text-anchor="middle" letter-spacing="0.5">Track Token Usage &amp; Costs for AI Agents</text>
 </svg>
