@@ -1,2 +1,2 @@
-     1|export declare function debugCommand(): void;
-     2|//# sourceMappingURL=debug.d.ts.map
+export declare function debugCommand(): void;
+//# sourceMappingURL=debug.d.ts.map
