@@ -18,6 +18,21 @@ export function dashboardCommand(options) {
             sendJson(res, 500, { error: msg });
         }
     });
+    server.on("error", (err) => {
+        if (err.code === "EADDRINUSE") {
+            console.error("");
+            console.error(`  ✗ Error: Port ${port} is already in use.`);
+            console.error("");
+            console.error("  Try one of these:");
+            console.error(`    1. Use a different port:  agentmeter dashboard -p ${port + 1}`);
+            console.error(`    2. Kill the process:      lsof -ti:${port} | xargs kill -9`);
+            console.error("");
+        }
+        else {
+            console.error("Dashboard server error:", err.message);
+        }
+        process.exit(1);
+    });
     server.listen(port, () => {
         console.log("");
         console.log("  AgentMeter Dashboard");
