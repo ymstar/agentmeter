@@ -59,3 +59,47 @@ Tests are in `tests/` using Vitest. Four test files: `db.test.ts`, `token.test.t
 npm run test              # Run all tests
 npx vitest run tests/db.test.ts   # Run a single test file
 ```
+
+## Release & Publish
+
+The project uses GitHub Actions to automatically publish to npm when a GitHub Release is created.
+
+### Release Flow
+
+1. **Update version** in `package.json`:
+   ```bash
+   npm version patch   # or minor / major
+   ```
+
+2. **Commit and push** version bump:
+   ```bash
+   git add package.json package-lock.json
+   git commit -m "chore: bump version to X.Y.Z"
+   git push origin master
+   ```
+
+3. **Create a GitHub Release** (triggers npm publish automatically):
+   ```bash
+   gh release create vX.Y.Z \
+     --repo ymstar/agentmeter \
+     --title "vX.Y.Z" \
+     --notes "## Changes\n- ..."
+   ```
+
+4. **GitHub Actions** (`.github/workflows/publish.yml`) will automatically:
+   - Checkout code
+   - Install dependencies (`npm ci`)
+   - Build (`npm run build`)
+   - Run tests (`npm test`)
+   - Publish to npm (`npm publish --provenance --access public`)
+
+### CI Pipeline
+
+`.github/workflows/ci.yml` runs on every push/PR to `master`:
+- **Build + Test** on Node 20 and 22
+- **Lint** (type-check with `npx tsc --noEmit`) on Node 22
+
+### Prerequisites for Publishing
+
+- NPM_TOKEN secret must be configured in the GitHub repository settings
+- The token needs `publish` permission for the `@ymstar/agentmeter` package
