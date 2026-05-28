@@ -13,7 +13,29 @@
   <a href="#"><img src="https://img.shields.io/badge/Claude_Code-supported-blueviolet.svg" alt="Claude Code"></a>
 </p>
 
+<p align="center">
+  <b>Open-source token usage & cost tracking CLI for AI coding agents.</b><br>
+  Automatically monitor Claude Code token consumption, cache hit rates, and API costs.<br>
+  Beautiful dashboard • Budget alerts • Multi-model pricing • Local-first SQLite storage.
+</p>
+
 ---
+
+## Why AgentMeter?
+
+| Feature | AgentMeter | Manual Tracking | API Dashboard |
+|---------|-----------|----------------|---------------|
+| Automatic tool-call tracking | ✅ | ❌ | ❌ |
+| Cache hit rate monitoring | ✅ | ❌ | ❌ |
+| Per-session & per-tool breakdown | ✅ | ❌ | ⚠️ |
+| Multi-model pricing (Claude, GPT, Gemini, DeepSeek) | ✅ | ❌ | ❌ |
+| Budget alerts & spending limits | ✅ | ❌ | ⚠️ |
+| Local-first (no cloud dependency) | ✅ | ✅ | ❌ |
+| Beautiful web dashboard | ✅ | ❌ | ✅ |
+| Zero config setup | ✅ | ❌ | ❌ |
+| CSV/JSON export | ✅ | ❌ | ⚠️ |
+
+**AgentMeter** hooks into Claude Code's `PostToolUse` event — every tool call is automatically captured with token usage, model info, cache stats, and estimated cost. No manual logging, no API polling, no cloud services.
 
 ## Quick Start
 
@@ -170,3 +192,10 @@ No linter configured — CI type-checks with `npx tsc --noEmit` on Node 20 and 2
 ## License
 
 [MIT](LICENSE)
+
+---
+
+<p align="center">
+  <b>Use Cases</b><br>
+  Claude Code cost tracking • AI agent token monitoring • LLM API budget management • Developer productivity analytics • Multi-model usage comparison • Prompt caching optimization
+</p>
