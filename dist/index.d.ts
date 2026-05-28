@@ -1,3 +1,3 @@
-     1|#!/usr/bin/env node
-     2|export {};
-     3|//# sourceMappingURL=index.d.ts.map
+#!/usr/bin/env node
+export {};
+//# sourceMappingURL=index.d.ts.map
