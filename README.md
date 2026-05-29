@@ -49,6 +49,13 @@ npx @ymstar/agentmeter dashboard
 
 That's it. AgentMeter will automatically track all tool calls in the background.
 
+<p align="center">
+  <img src="assets/screenshots/1.png" alt="AgentMeter Dashboard Overview" width="100%">
+</p>
+<p align="center">
+  <img src="assets/screenshots/2.png" alt="AgentMeter Dashboard Details" width="100%">
+</p>
+
 ## Features
 
 - **Zero Config** — One `init` command sets up Claude Code hooks
