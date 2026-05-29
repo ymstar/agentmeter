@@ -16,6 +16,7 @@ const { values, positionals } = parseArgs({
         output: { type: "string", short: "o" },
         days: { type: "string", short: "d" },
         force: { type: "boolean" },
+        list: { type: "boolean", short: "l" },
         help: { type: "boolean", short: "h" },
     },
     allowPositionals: true,
@@ -29,7 +30,10 @@ if (values.help && command === "help") {
 async function main() {
     switch (command) {
         case "init":
-            initCommand();
+            initCommand({
+                list: !!values.list,
+                agent: positionals[1],
+            });
             break;
         case "hook":
             await hookCommand();
@@ -77,24 +81,28 @@ function printHelp() {
     agentmeter <command> [options]
 
   Commands:
-    init         Configure Claude Code hooks (one-time setup)
-    stats        Show token usage statistics in terminal
-    dashboard    Launch web dashboard (default port 3940)
-    budget       Check budget status and warnings
-    export       Export data to CSV or JSON
-    reset        Clear all recorded data and start fresh
-    debug        Show model detection debug info
-    hook         Internal: called by Claude Code hooks
+    init [agent]   Configure agent hooks (one-time setup)
+                   Auto-detects all agents, or specify: claude-code, codex
+    stats          Show token usage statistics in terminal
+    dashboard      Launch web dashboard (default port 3940)
+    budget         Check budget status and warnings
+    export         Export data to CSV or JSON
+    reset          Clear all recorded data and start fresh
+    debug          Show model detection debug info
+    hook           Internal: called by agent hooks
 
   Options:
     -p, --port <port>      Dashboard port (default: 3940)
     -f, --format <format>  Export format: csv (default), json
     -o, --output <file>    Output file (default: stdout)
     -d, --days <n>         Number of days to export (default: 30)
+    -l, --list             List supported agents and their status
     -h, --help             Show this help
 
   Quick Start:
     npx @ymstar/agentmeter init
+    npx @ymstar/agentmeter init codex
+    npx @ymstar/agentmeter init --list
     npx @ymstar/agentmeter dashboard
     npx @ymstar/agentmeter export -f csv -o data.csv
   `);
