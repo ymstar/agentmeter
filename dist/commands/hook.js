@@ -8,24 +8,46 @@ const DB_PATH = join(homedir(), ".agentmeter", "meter.db");
 export function hookCommand() {
     let raw;
     try {
-        raw = readFileSync("/dev/stdin", "utf-8");
+        // Use fd 0 (numeric) instead of "/dev/stdin" path — the path is a character
+        // device on macOS and can fail when npx re-spawns the process. Reading from
+        // the raw file descriptor is reliable on all platforms.
+        raw = readFileSync(0, "utf-8");
     }
-    catch {
+    catch (err) {
+        if (process.env.DEBUG_AGENTMETER) {
+            console.error("[agentmeter] Failed to read stdin:", err);
+        }
         process.exit(0);
     }
     if (!raw.trim()) {
+        if (process.env.DEBUG_AGENTMETER) {
+            console.error("[agentmeter] stdin was empty");
+        }
         process.exit(0);
     }
     let input;
     try {
         input = JSON.parse(raw);
     }
-    catch {
+    catch (err) {
+        if (process.env.DEBUG_AGENTMETER) {
+            console.error("[agentmeter] Failed to parse stdin JSON:", err);
+            console.error("[agentmeter] Raw stdin (first 500 chars):", raw.slice(0, 500));
+        }
         process.exit(0);
     }
     // Note: Claude Code sends cwd, duration_ms, hook_event_name, permission_mode, effort, transcript_path
     // but does NOT send model or agent_type - these are detected from env vars, settings, and patterns
-    const db = new MeterDB(DB_PATH);
+    let db;
+    try {
+        db = new MeterDB(DB_PATH);
+    }
+    catch (err) {
+        if (process.env.DEBUG_AGENTMETER) {
+            console.error("[agentmeter] Failed to open database:", err);
+        }
+        process.exit(1);
+    }
     try {
         const timestamp = new Date().toISOString();
         const toolName = input.tool_name ?? "unknown";
