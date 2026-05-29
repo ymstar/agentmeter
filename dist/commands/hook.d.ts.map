@@ -1,1 +1,1 @@
-{"version":3,"file":"hook.d.ts","sourceRoot":"","sources":["../../src/commands/hook.ts"],"names":[],"mappings":"AAsBA,wBAAgB,WAAW,IAAI,IAAI,CAyGlC"}
+{"version":3,"file":"hook.d.ts","sourceRoot":"","sources":["../../src/commands/hook.ts"],"names":[],"mappings":"AAoDA,wBAAsB,WAAW,IAAI,OAAO,CAAC,IAAI,CAAC,CA+GjD"}

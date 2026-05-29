@@ -5,24 +5,50 @@ import { MeterDB } from "../db/client.js";
 import { parseTokenUsage, estimateFromArguments, estimateTokens } from "../token/counter.js";
 import { estimateCost } from "../token/pricing.js";
 const DB_PATH = join(homedir(), ".agentmeter", "meter.db");
-export function hookCommand() {
+/**
+ * Read all of stdin using the async stream API. This is reliable on all
+ * platforms including macOS where npx may re-spawn the process and break
+ * synchronous fd reads (readFileSync(0)).
+ */
+function readStdin(timeoutMs = 10000) {
+    return new Promise((resolve, reject) => {
+        const chunks = [];
+        const timer = setTimeout(() => {
+            reject(new Error(`stdin read timed out after ${timeoutMs}ms — no data received`));
+            process.stdin.destroy();
+        }, timeoutMs);
+        process.stdin.on("data", (chunk) => {
+            chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk));
+        });
+        process.stdin.on("end", () => {
+            clearTimeout(timer);
+            resolve(Buffer.concat(chunks).toString("utf-8"));
+        });
+        process.stdin.on("error", (err) => {
+            clearTimeout(timer);
+            reject(err);
+        });
+        // Ensure the stream is in flowing mode so data events fire
+        process.stdin.resume();
+    });
+}
+export async function hookCommand() {
+    if (process.env.DEBUG_AGENTMETER) {
+        console.error("[agentmeter] hook started, reading stdin...");
+    }
     let raw;
     try {
-        // Use fd 0 (numeric) instead of "/dev/stdin" path — the path is a character
-        // device on macOS and can fail when npx re-spawns the process. Reading from
-        // the raw file descriptor is reliable on all platforms.
-        raw = readFileSync(0, "utf-8");
+        raw = await readStdin();
     }
     catch (err) {
-        if (process.env.DEBUG_AGENTMETER) {
-            console.error("[agentmeter] Failed to read stdin:", err);
-        }
-        process.exit(0);
+        console.error("[agentmeter] Failed to read stdin:", err instanceof Error ? err.message : err);
+        process.exit(1);
+    }
+    if (process.env.DEBUG_AGENTMETER) {
+        console.error(`[agentmeter] stdin received: ${raw.length} chars`);
     }
     if (!raw.trim()) {
-        if (process.env.DEBUG_AGENTMETER) {
-            console.error("[agentmeter] stdin was empty");
-        }
+        console.error("[agentmeter] stdin was empty — no data to process");
         process.exit(0);
     }
     let input;
@@ -30,11 +56,11 @@ export function hookCommand() {
         input = JSON.parse(raw);
     }
     catch (err) {
+        console.error("[agentmeter] Failed to parse stdin JSON:", err instanceof Error ? err.message : err);
         if (process.env.DEBUG_AGENTMETER) {
-            console.error("[agentmeter] Failed to parse stdin JSON:", err);
             console.error("[agentmeter] Raw stdin (first 500 chars):", raw.slice(0, 500));
         }
-        process.exit(0);
+        process.exit(1);
     }
     // Note: Claude Code sends cwd, duration_ms, hook_event_name, permission_mode, effort, transcript_path
     // but does NOT send model or agent_type - these are detected from env vars, settings, and patterns
@@ -43,9 +69,7 @@ export function hookCommand() {
         db = new MeterDB(DB_PATH);
     }
     catch (err) {
-        if (process.env.DEBUG_AGENTMETER) {
-            console.error("[agentmeter] Failed to open database:", err);
-        }
+        console.error("[agentmeter] Failed to open database:", err instanceof Error ? err.message : err);
         process.exit(1);
     }
     try {
@@ -92,6 +116,13 @@ export function hookCommand() {
             is_error: isError(input.tool_response),
             arguments_summary: argsSummary,
         });
+        if (process.env.DEBUG_AGENTMETER) {
+            console.error(`[agentmeter] recorded: tool=${toolName} model=${model ?? "unknown"} agent=${agentType} tokens=${inputTokens}+${outputTokens}`);
+        }
+    }
+    catch (err) {
+        console.error("[agentmeter] Failed to record tool call:", err instanceof Error ? err.message : err);
+        process.exit(1);
     }
     finally {
         db.close();

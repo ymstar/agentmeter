@@ -38,7 +38,7 @@ async function main() {
       break;
 
     case "hook":
-      hookCommand();
+      await hookCommand();
       break;
 
     case "stats":

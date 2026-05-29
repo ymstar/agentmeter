@@ -1,2 +1,2 @@
-export declare function hookCommand(): void;
+export declare function hookCommand(): Promise<void>;
 //# sourceMappingURL=hook.d.ts.map

@@ -32,7 +32,7 @@ async function main() {
             initCommand();
             break;
         case "hook":
-            hookCommand();
+            await hookCommand();
             break;
         case "stats":
             statsCommand();
