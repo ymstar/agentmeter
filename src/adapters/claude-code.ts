@@ -118,7 +118,7 @@ export class ClaudeCodeAdapter implements AgentAdapter {
       agentType: this.id,
       cwd: input.cwd as string | undefined,
       durationMs: input.duration_ms as number | undefined,
-      effort: input.effort as string | undefined,
+      effort: parseEffort(input.effort),
     };
   }
 
@@ -164,4 +164,14 @@ export class ClaudeCodeAdapter implements AgentAdapter {
 
     return undefined;
   }
+}
+
+/** Extract effort string from input — Claude Code may send an object like {"level": "high"} */
+function parseEffort(effort: unknown): string | undefined {
+  if (typeof effort === "string" && effort.trim()) return effort.trim();
+  if (effort && typeof effort === "object") {
+    const obj = effort as Record<string, unknown>;
+    if (typeof obj.level === "string") return obj.level;
+  }
+  return undefined;
 }

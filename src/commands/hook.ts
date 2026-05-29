@@ -188,7 +188,7 @@ function tryAdapters(input: unknown): {
     agentType: "unknown",
     cwd: inp.cwd as string | undefined,
     durationMs: inp.duration_ms as number | undefined,
-    effort: inp.effort as string | undefined,
+    effort: parseEffort(inp.effort),
   };
 }
 
@@ -209,6 +209,16 @@ function detectModelFallback(input: Record<string, unknown>): string | undefined
     if (val && val.trim()) return val.trim();
   }
 
+  return undefined;
+}
+
+/** Extract effort string — Claude Code may send an object like {"level": "high"} */
+function parseEffort(effort: unknown): string | undefined {
+  if (typeof effort === "string" && effort.trim()) return effort.trim();
+  if (effort && typeof effort === "object") {
+    const obj = effort as Record<string, unknown>;
+    if (typeof obj.level === "string") return obj.level;
+  }
   return undefined;
 }
 
